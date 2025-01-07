@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+    <title>Cloud Radar System</title>
+    <link rel="stylesheet" href="styles.css">
+    
+</head>
+    <img src="kciri.jpeg" alt="Description of Image" width='500' height="150">
+
+<body>
+    <div class="live-time" id="live-time">Live Time: N/A</div>
+    
+    <div class="container">
+        
+        <div class="copyright">
+            Copyrights &copy; <strong><span>Eraianbu R</span></strong>
+            <br>
+            Designed by <a> href="https://eraianbu.in/" target="_blank">ErAiAnBu</a>
+        </div>
+    </div>
+    <h1>Cloud Radar System</h1>
+    <div class="current-data" id="current-data">
+        <div id="current-timestamp">Timestamp: N/A</div>
+        <div id="current-north-south">North-South Angle: N/A</div>
+        <div id="current-east-west">East-West Angle: N/A</div>
+    </div>
+    <table class="compact">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>North-South Angle</th>
+                <th>East-West Angle</th>
+            </tr>
+        </thead>
+        <tbody id="data-table-body">
+        </tbody>
+    </table>
+    <script>
+        function updateLiveTime() {
+            const liveTime = document.getElementById('live-time');
+            liveTime.textContent = 'Live Time: ' + new Date().toLocaleString();
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch('http://localhost:3000/data');
+                const data = await response.json();
+
+                const tableBody = document.getElementById('data-table-body');
+                tableBody.innerHTML = '';
+
+                if (data.length > 0) {
+                    const latestData = data[data.length - 1];
+                    document.getElementById('current-timestamp').textContent = 'Timestamp: ' + new Date(latestData.timestamp).toLocaleString();
+                    document.getElementById('current-north-south').textContent = 'North-South Angle: ' + latestData.north_south_angle;
+                    document.getElementById('current-east-west').textContent = 'East-West Angle: ' + latestData.east_west_angle;
+                }
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    const timestampCell = document.createElement('td');
+                    const northSouthCell = document.createElement('td');
+                    const eastWestCell = document.createElement('td');
+
+                    timestampCell.textContent = new Date(item.timestamp).toLocaleString();
+                    northSouthCell.textContent = item.north_south_angle;
+                    eastWestCell.textContent = item.east_west_angle;
+
+                    row.appendChild(timestampCell);
+                    row.appendChild(northSouthCell);
+                    row.appendChild(eastWestCell);
+
+                    tableBody.prepend(row);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // Update live time every second
+        setInterval(updateLiveTime, 1000);
+        // Fetch data initially and then every 5 seconds
+        fetchData();
+        setInterval(fetchData, 5000);
+    </script>
+</body>
+</html>
